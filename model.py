@@ -1,12 +1,13 @@
-# model.py
+from sklearn.ensemble import RandomForestClassifier
 
 
 class Model:
     def __init__(self,):
-        pass
+        self.clf = RandomForestClassifier()
 
     def fit(self, X, y):
-        pass
+        self.clf.fit(X, y)
 
     def predict(self, X):
-        pass
+        y_proba = self.clf.predict_proba(X)[:, 1]
+        return y_proba
