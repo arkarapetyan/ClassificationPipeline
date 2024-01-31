@@ -1,9 +1,10 @@
 # run_pipeline.py
-
+import os.path
 import pickle
 import json
 import sys
 import argparse
+import warnings
 
 import pandas as pd
 import numpy as np
@@ -96,10 +97,16 @@ class Pipeline:
         self.model = Model()
 
     def _save_preprocessing(self):
+        if not os.path.exists(os.path.dirname(self.preprocessor_path)):
+            os.makedirs(os.path.dirname(self.preprocessor_path))
+
         with open(self.preprocessor_path, "wb") as outfile:
             pickle.dump(self.preprocessor, outfile)
 
     def _save_model(self):
+        if not os.path.exists(os.path.dirname(self.model_path)):
+            os.makedirs(os.path.dirname(self.model_path))
+
         with open(self.model_path, "wb") as outfile:
             pickle.dump(self.model, outfile)
 
@@ -110,22 +117,26 @@ class Pipeline:
         json_object = json.dumps(result)
 
         # Writing to sample.json
-        with open("predictions.json", "w") as outfile:
+        with open("predictions.json", "w+") as outfile:
             outfile.write(json_object)
 
 
+# run code
+warnings.filterwarnings('ignore')
+
 parser = argparse.ArgumentParser()
-parser.add_argument("--test", type=bool, default=False)
+parser.add_argument("--test", action='store_true')
 parser.add_argument("--data_path", type=str)
 parser.add_argument("--preprocessor_path", type=str, default="preprocessor.sav")
 parser.add_argument("--model_path", type=str, default="model.sav")
+parser.add_argument("--threshold", type=float, default=0.45)
 
 args = parser.parse_args()
 
-preprocessor_params = {"nan_drop_threshold": 0.5, "imputing_strategy": "median", "scaling_strategy": "StandardScaler"}
-model_params = {}
-df = pd.read_csv(args.data_path)
+PREPROCESSOR_PARAMS = {"nan_drop_threshold": 0.5, "imputing_strategy": "median", "scaling_strategy": "StandardScaler"}
+MODEL_PARAMS = {"n_estimators": 500, "max_depth": None, "min_samples_split": None, "sampling_strategy": "all"}
 
+df = pd.read_csv(args.data_path)
 pipeline = Pipeline("In-hospital_death", ["recordid", "SAPS-I", "SOFA", "Length_of_stay", "Survival"],
-                    0.5, args.preprocessor_path, args.model_path)
-pipeline.run(df, test=args.test, preprocessor_params=preprocessor_params, model_params=model_params)
+                    args.threshold, args.preprocessor_path, args.model_path)
+pipeline.run(df, test=args.test, preprocessor_params=PREPROCESSOR_PARAMS, model_params=MODEL_PARAMS)
