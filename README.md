@@ -7,7 +7,7 @@ For running the pipeline, use python to run `run_pipeline.py` script. Make sure 
 * ` --data_path <path> ` - Path to the dataset (.csv file)
 * ` --model_path <path> ` - The path to save/load (train/test mode) the classifier model pickle object. If the flag is not present, then the default path (`./saved/model.sav`) is used.
 * ` --preprocessor_path <path> ` - The path to save/load (train/test mode) the preprocessing model pickle object. If the flag is not present, then the default path (`./saved/preprocessing.sav`) is used.
-* ` --thereshold <threshold_value>  ` - The positive label classification threshold. If the flag is not present, then the default value (`threshold_value=0.45`) for the threshold is used.
+* ` --threshold <threshold_value>  ` - The positive label classification threshold. If the flag is not present, then the default value (`threshold_value=0.45`) for the threshold is used.
 
 In addition to the Pipeline, the repository features Jupyter Notebooks that showcase some of the Data Analysis and Model Selection done in the project.
 
