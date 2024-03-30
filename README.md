@@ -1,6 +1,8 @@
 # Classification Pipeline for Predicting Mortality of ICU Patients
 
-This project was a homework assignment from Advanced ML course in Armenian Code Academy. The assignment was to implement a Pipeline for ML Classification problem, that should include Preprocessing, Classifier and Pipeline logic. The Dataset for the problem is described here -https://physionet.org/content/challenge-2012/1.0.0/ and the task is to predict the `In-hospital death` label.
+## Project Description 
+
+This project was a group homework assignment from Advanced ML course in Armenian Code Academy. The assignment was to implement a Pipeline for ML Classification problem, that should include Preprocessing, Classifier and Pipeline logic. The Dataset for the problem is described here -https://physionet.org/content/challenge-2012/1.0.0/ and the task is to predict the `In-hospital death` label.
 
 For running the pipeline, use python to run `run_pipeline.py` script. Make sure to have all the dependencies installed (these are described in the `requirements.txt `). Here are the flags to use with the script
 * ` --test ` - Indicates whether the pipeline should run in test mode or in train mode (train mode if flag is absent). If in train mode, the result of the program is that the fitted preprocessing and classifier models are saved as pickle objects. If in test mode, the pipeline should load already saved preprocessing and classifier models, make predictions on the given dataset and save the predicted probabilities and the threshold in `./predictions.json` file.
@@ -24,3 +26,11 @@ AUC - 0.8302115110572863
    macro avg       0.62      0.75      0.60      4000
 weighted avg       0.87      0.67      0.72      4000
 ```
+
+## Contributors
+
+Please note that this is a group project. The following individuals have made contributions in this project:
+
+- [Aren Karapetyan](https://github.com/arkarapetyan/)
+- [Ruzanna Ghandilian](https://github.com/RuzGhandilian/)
+- [Hayk Azaryan](https://github.com/HaykAzaryan/)
