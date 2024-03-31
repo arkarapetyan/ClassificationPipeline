@@ -14,8 +14,49 @@ from preprocessor import Preprocessor
 
 
 class Pipeline:
+    """
+        A class representing a pipeline for data preprocessing and model training/testing.
+
+        This pipeline consists of methods to initialize, fit, transform, and save preprocessing steps,
+        as well as loading and using a machine learning model.
+
+        Attributes:
+        - target_feature (str): The target feature to predict.
+        - cols_to_drop (list): List of columns to drop during preprocessing.
+        - positive_threshold (float): Threshold for classifying positive instances.
+        - preprocessor_path (str): File path to save/load the preprocessor object.
+        - model_path (str): File path to save/load the model object.
+        - preprocessor: The preprocessor object for data preprocessing.
+        - model: The machine learning model for prediction.
+
+        Methods:
+        - __init__: Constructor method for the Pipeline class.
+        - run: Method to run the pipeline for training/testing.
+        - _run_test: Method to run the pipeline for testing.
+        - _run_train: Method to run the pipeline for training.
+        - _load_preprocessor: Method to load the preprocessor object from file.
+        - _load_model: Method to load the model object from file.
+        - _preprocessor_init: Method to initialize the preprocessor object.
+        - _model_init: Method to initialize the model object.
+        - _save_preprocessing: Method to save the preprocessor object to file.
+        - _save_model: Method to save the model object to file.
+        - _save_prediction: Static method to save predictions to file.
+    """
     def __init__(self, target_feature: str, cols_to_drop: list, positive_threshold: float, preprocessor_path: str,
                  model_path: str):
+        """
+               Constructor method for the Pipeline class.
+
+               Parameters:
+               - target_feature (str): The target feature to predict.
+               - cols_to_drop (list): List of columns to drop during preprocessing.
+               - positive_threshold (float): Threshold for classifying positive instances.
+               - preprocessor_path (str): File path to save/load the preprocessor object.
+               - model_path (str): File path to save/load the model object.
+
+               Returns:
+               - None
+        """
 
         self.target_feature = target_feature
         self.cols_to_drop = cols_to_drop
@@ -28,18 +69,41 @@ class Pipeline:
         self.model = None
 
     def run(self, X, test=False, preprocessor_params: dict = None, model_params: dict = None):
-        if test:
-            self.preprocessor = self._load_preprocessor()
-            self.model = self._load_model()
-            self._run_test(X)
-        else:
-            self._preprocessor_init(preprocessor_params)
-            self._model_init(model_params)
-            self._run_train(X)
-            self._save_preprocessing()
-            self._save_model()
+        """
+                Method to run the pipeline for training/testing.
 
-    def _run_test(self, X: pd.DataFrame):
+                Parameters:
+                - X (DataFrame): Input data.
+                - test (bool): Whether to run the pipeline for testing.
+                - preprocessor_params (dict): Parameters for preprocessor initialization.
+                - model_params (dict): Parameters for model initialization.
+
+                Returns:
+                - None
+        """
+
+        if test:
+            self.preprocessor = self.__load_preprocessor()
+            self.model = self.__load_model()
+            self.__run_test(X)
+        else:
+            self.__preprocessor_init(preprocessor_params)
+            self.__model_init(model_params)
+            self.__run_train(X)
+            self.__save_preprocessing()
+            self.__save_model()
+
+    def __run_test(self, X: pd.DataFrame):
+        """
+                Method to run the pipeline for testing.
+
+                Parameters:
+                - X (DataFrame): Input data for testing.
+
+                Returns:
+                - None
+        """
+
         for col in self.cols_to_drop + [self.target_feature]:
             if col in X.columns:
                 X = X.drop(col, axis=1)
@@ -47,9 +111,18 @@ class Pipeline:
         X = self.preprocessor.transform(X)
         predict_probas = self.model.predict(X)
 
-        self._save_prediction(predict_probas, self.positive_threshold)
+        self.__save_prediction(predict_probas, self.positive_threshold)
 
-    def _run_train(self, X: pd.DataFrame):
+    def __run_train(self, X: pd.DataFrame):
+        """
+                Method to run the pipeline for training.
+                Parameters:
+        - X (DataFrame): Input data for training.
+
+        Returns:
+        - None
+        """
+
         for col in self.cols_to_drop:
             if col in X.columns:
                 X = X.drop(col, axis=1)
@@ -59,7 +132,14 @@ class Pipeline:
         X = self.preprocessor.transform(X)
         self.model.fit(X, y)
 
-    def _load_preprocessor(self):
+    def __load_preprocessor(self):
+        """
+                Method to load the preprocessor object from file.
+
+                Returns:
+                - preprocessor: Preprocessor object.
+        """
+
         try:
             with open(self.preprocessor_path, "rb") as infile:
                 preprocessor = pickle.load(infile)
@@ -68,9 +148,15 @@ class Pipeline:
             print("Fatal: Could not load preprocessor. Please specify correct path or run the pipeline on Train mode "
                   "to initialize the preprocessor")
             sys.exit()
-            return None
 
-    def _load_model(self):
+    def __load_model(self):
+        """
+                Method to load the model object from file.
+
+                Returns:
+                - model: Model object.
+        """
+
         try:
             with open(self.model_path, "rb") as infile:
                 model = pickle.load(infile)
@@ -79,9 +165,18 @@ class Pipeline:
             print("Fatal: Could not load model. Please specify correct path or run the pipeline on Train mode to "
                   "initialize the model")
             sys.exit()
-            return None
 
-    def _preprocessor_init(self, preprocessor_params: dict):
+    def __preprocessor_init(self, preprocessor_params: dict):
+        """
+               Method to initialize the preprocessor object.
+
+               Parameters:
+               - preprocessor_params (dict): Parameters for preprocessor initialization.
+
+               Returns:
+               - None
+        """
+
         nan_drop_threshold = 0.5
         imputing_strategy = "median"
         scaling_strategy = "StandardScaler"
@@ -92,18 +187,51 @@ class Pipeline:
 
         self.preprocessor = Preprocessor(nan_drop_threshold, imputing_strategy, scaling_strategy)
 
-    def _model_init(self, model_params: dict):
-        # TODO
-        self.model = Model()
+    def __model_init(self, model_params: dict):
+        """
+                Method to initialize the model object.
 
-    def _save_preprocessing(self):
+                Parameters:
+                - model_params (dict): Parameters for model initialization.
+
+                Returns:
+                - None
+        """
+
+        n_estimators = 500
+        max_depth = None
+        min_samples_split = 2
+        sampling_strategy = "all"
+        if model_params is not None:
+            n_estimators = model_params.get("n_estimators", 500)
+            max_depth = model_params.get("max_depth", None)
+            min_samples_split = model_params.get("min_samples_split", 2)
+            sampling_strategy = model_params.get("sampling_strategy", "all")
+
+        self.model = Model(n_estimators, max_depth, min_samples_split, sampling_strategy)
+
+    def __save_preprocessing(self):
+        """
+                Method to save the preprocessor object to file.
+
+                Returns:
+                - None
+        """
+
         if not os.path.exists(os.path.dirname(self.preprocessor_path)):
             os.makedirs(os.path.dirname(self.preprocessor_path))
 
         with open(self.preprocessor_path, "wb") as outfile:
             pickle.dump(self.preprocessor, outfile)
 
-    def _save_model(self):
+    def __save_model(self):
+        """
+                Method to save the model object to file.
+
+                Returns:
+                - None
+        """
+
         if not os.path.exists(os.path.dirname(self.model_path)):
             os.makedirs(os.path.dirname(self.model_path))
 
@@ -111,7 +239,18 @@ class Pipeline:
             pickle.dump(self.model, outfile)
 
     @staticmethod
-    def _save_prediction(predict_probas: np.ndarray, threshold: float):
+    def __save_prediction(predict_probas: np.ndarray, threshold: float):
+        """
+               Static method to save predictions to file.
+
+               Parameters:
+               - predict_probas (np.ndarray): Predicted probabilities.
+               - threshold (float): Classification threshold.
+
+               Returns:
+               - None
+        """
+
         predict_probas = list(predict_probas)
         result = {"predict_probas": predict_probas, "threshold": threshold}
         json_object = json.dumps(result)
@@ -134,7 +273,7 @@ parser.add_argument("--threshold", type=float, default=0.45)
 args = parser.parse_args()
 
 PREPROCESSOR_PARAMS = {"nan_drop_threshold": 0.5, "imputing_strategy": "median", "scaling_strategy": "StandardScaler"}
-MODEL_PARAMS = {"n_estimators": 500, "max_depth": None, "min_samples_split": None, "sampling_strategy": "all"}
+MODEL_PARAMS = {"n_estimators": 500, "max_depth": None, "min_samples_split": 2, "sampling_strategy": "all"}
 
 df = pd.read_csv(args.data_path)
 pipeline = Pipeline("In-hospital_death", ["recordid", "SAPS-I", "SOFA", "Length_of_stay", "Survival"],

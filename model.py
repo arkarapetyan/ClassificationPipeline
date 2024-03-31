@@ -12,8 +12,7 @@ class Model:
        - __init__: Constructor method for the Model class.
        - fit: Method to fit the model to the training data.
        - predict: Method to make predictions on new data.
-       """
-
+    """
     def __init__(self, n_estimators: int = 100, max_depth: int = None, min_samples_split: int = 2,
                  sampling_strategy: str = "all"):
         """
@@ -27,7 +26,7 @@ class Model:
 
                 Returns:
                 - None
-                """
+        """
 
         self.clf = BalancedRandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth,
                                                   min_samples_split=min_samples_split,
@@ -43,7 +42,8 @@ class Model:
 
                 Returns:
                 - None
-                """
+        """
+
         self.clf.fit(X, y)
 
     def predict(self, X):
@@ -55,6 +55,7 @@ class Model:
 
                 Returns:
                 - y_proba (array-like, shape (n_samples,)): Predicted probabilities for the positive class.
-                """
+        """
+
         y_proba = self.clf.predict_proba(X)[:, 1]
         return y_proba

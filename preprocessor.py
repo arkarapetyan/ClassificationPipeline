@@ -19,7 +19,7 @@ class Preprocessor:
         - transform: Method to transform the input data using the fitted preprocessor.
         - _get_imputer_by_name: Static method to get the imputer object based on the specified name.
         - _get_scaler_by_name: Static method to get the scaler object based on the specified name.
-        """
+    """
     def __init__(self, nan_drop_threshold: float, imputing_strategy: str, scaling_strategy: str):
         """
                Constructor method for the Preprocessor class.
@@ -31,10 +31,11 @@ class Preprocessor:
 
                Returns:
                - None
-               """
+        """
+
         self.nan_drop_threshold = nan_drop_threshold
-        self.imputer = self._get_imputer_by_name(imputing_strategy)
-        self.scaler = self._get_scaler_by_name(scaling_strategy)
+        self.imputer = self.__get_imputer_by_name(imputing_strategy)
+        self.scaler = self.__get_scaler_by_name(scaling_strategy)
         self.cols_to_drop = None
 
     def fit(self, X):
@@ -46,7 +47,8 @@ class Preprocessor:
 
                 Returns:
                 - None
-                """
+        """
+
         count = X.isna().sum()
         self.cols_to_drop = list(X.columns[count / len(X) > self.nan_drop_threshold])
         X = X.drop(columns=self.cols_to_drop)
@@ -63,7 +65,8 @@ class Preprocessor:
 
                 Returns:
                 - X_transformed (DataFrame): Transformed data.
-                """
+        """
+
         X = X.drop(columns=self.cols_to_drop)
         X = self.imputer.transform(X)
         X = self.scaler.transform(X)
@@ -71,7 +74,7 @@ class Preprocessor:
         return X
 
     @staticmethod
-    def _get_imputer_by_name(name: str):
+    def __get_imputer_by_name(name: str):
         """
                 Static method to get the imputer object based on the specified name.
 
@@ -80,7 +83,8 @@ class Preprocessor:
 
                 Returns:
                 - imputer: Imputer object.
-                """
+        """
+
         if name == "median":
             return SimpleImputer(strategy="median")
         elif name == "mean":
@@ -93,7 +97,7 @@ class Preprocessor:
             return None
 
     @staticmethod
-    def _get_scaler_by_name(name: str):
+    def __get_scaler_by_name(name: str):
         """
                Static method to get the scaler object based on the specified name.
 
@@ -102,12 +106,11 @@ class Preprocessor:
 
                Returns:
                - scaler: Scaler object.
-               """
+        """
+        
         if name == "MinMaxScaler":
             return MinMaxScaler()
         elif name == "StandardScaler":
             return StandardScaler()
         else:
             return None
-
-
